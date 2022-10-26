@@ -1,0 +1,77 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sk.signet.onm.mapper.LoginMapper">
+	<select id="userLogin" parameterType="Map" resultType="com.sk.signet.onm.common.db.ResultMap">
+		/* com.signetev.cpos.web.mapper.LoginMapper.login */
+		SELECT A.companyId
+			, A.userId
+			, A.empNo
+			, A.userNm
+			, A.deptCd
+			, B.deptNm
+			, B.deptNmA
+			, B.parentDeptCd
+			, B.shipToNo
+			, A.email
+			, A.appleId
+			, A.authId, D.authNm
+			, IFNULL(A.ipSecurityYn , 'Y') AS userIpSecurityYn
+			, B.telNo deptTelNo
+			, B.addr deptAddr
+			, IFNULL(B.ipSecurityYn, 'Y') AS deptIpSecurityYn
+			, 'ko' AS languageCd
+			, '+00:00' AS timeDiff
+			, CASE WHEN IFNULL(A.gridRowCd, "") = "" THEN "10" ELSE A.gridRowCd END AS gridRowCd
+			, C.initUrl
+			, C.serviceAuthType AS authUnit
+			, C.name AS companyNm
+			, (SELECT LOWER(vendorId) FROM TCSP_SERVICE_COMPANY WHERE id=A.companyId) AS vendorId
+			, C.bid AS mnsBid
+            , C.bkey AS mnsBkey
+            , C.kepcoId AS kepcoBid
+            , C.kepcoKey AS kepcoBkey
+		FROM TCO_USER A
+			LEFT OUTER JOIN TCO_DEPT B
+				ON B.companyId = A.companyId
+				AND B.deptCd = A.deptCd
+			INNER JOIN TCSP_SERVICE_COMPANY C
+				ON A.companyId = C.id
+			LEFT OUTER JOIN TSM_AUTHORITY D
+				ON A.companyId = D.companyId
+                AND A.authId = D.authId
+		WHERE A.userId = #{userId}
+		<if test="userPassword != null and userPassword != ''">
+		   AND A.userPassword = CAST(PASSWORD(#{userPassword}) AS CHAR)
+		</if>
+		   AND A.useYn = 'Y'
+	</select>
+	
+	<!-- 로그인 추적이력생성 -->
+    <insert id="insertUserLoginHist" parameterType="com.sk.signet.onm.common.db.ResultMap">
+        INSERT INTO TSYS_LOGIN_HIST (
+          	   userId
+             , accessIp
+             , agent
+             , loginTime
+               ) 
+        VALUES ( 
+        	   #{userId}
+             , #{accessIp}
+             , #{agent}
+             , NOW()
+            )
+    </insert>      
+     
+	<!-- 로그아웃 이력업데이트 -->
+    <update id="updateUserLogoutHist" parameterType="com.sk.signet.onm.common.db.ResultMap">
+       UPDATE TSYS_LOGIN_HIST 
+		  SET logoutTime = NOW()
+		WHERE histSeq = (SELECT MAX(histSeq) 
+		                   FROM TSYS_LOGIN_HIST 
+		                  WHERE userId = #{userId}
+		                    AND accessIp = #{accessIp})
+    </update>   
+    
+</mapper>
