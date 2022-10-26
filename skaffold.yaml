@@ -1,0 +1,46 @@
+apiVersion: skaffold/v2beta18
+kind: Config
+profiles:
+  - name: dev
+    build:
+      local:
+        push: true # true: 서버 테스트 / false: 로컬 테스트
+      artifacts: 
+        - image: feet312/onm-auth
+#        - image: onm-auth    # local
+          jib:
+            args:
+              - -DskipTests
+              - "-Djib.container.environment=SPRING_PROFILES_ACTIVE=dev"
+            fromImage: openjdk:11.0.11-jre-slim
+  - name: stage
+    build:
+      local:
+        push: true # true: 서버 테스트 / false: 로컬 테스트
+      artifacts: 
+        - image: docker-signet.sk.com/onm/onm-web 
+          jib:
+            args:
+              - -DskipTests
+              - "-Dgs ${maven_settings}"
+              - "-Djib.container.environment=SPRING_PROFILES_ACTIVE=stage"
+            fromImage: docker-signet.sk.com/onm/onm-jre-runtime:v1.0.0
+  - name: local
+    build:
+      local:
+        push: false # true: 서버 테스트 / false: 로컬 테스트
+        useDockerCLI: true
+      artifacts:
+        - image: feet312/onm-auth # on dev server
+#        - image: docker-signet.sk.com/onm/onm-web 
+    deploy:
+      kubectl:
+        manifests:
+          - k8s/dev/onm-auth.yaml
+          
+    portForward:
+     - resourceType: Service
+       resourceName: onm-auth
+       namespace: onm-dev
+       port: 28000
+       localPort: 28000 # *Optional*

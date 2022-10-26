@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: onm-auth
+  profiles:
+    active: local
+  banner: 
+    location: "classpath:app-banner.txt"
+  datasource: 
+    hikari:
+      driver-class-name: org.mariadb.jdbc.Driver
+      jdbc-url: "jdbc:mariadb://10.10.10.163:3306/signetCpos?useSSL=false&amp;serverTimezone=UTC&amp;autoReconnection=true"  # prod
+#      jdbc-url: "jdbc:mariadb://210.116.112.170:3306/signetCpos?useSSL=false&amp;serverTimezone=UTC&amp;autoReconnection=true"   # dev
+      username: cpos
+      password: cpos!@34
+      connection-timeout: 5000
+      validation-timeout: 1000
+      maximum-pool-size: 10
+      
+
+mybatis: 
+  mapper-locations: /mapper/**/*.xml
+  type-aliases-package: com.sk.signet.onm.common.db.ResultMap
+    
+springdoc:
+  version: '@project.version@'
+  api-docs:
+    path: /v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+    doc-expansion: none
+
+openapi:
+  title : "SK Signet O&M 인증서비스 API Docs"
+  description: "Spring Boot를 이용한 O&M 인증서비스 API Docs 입니다."
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    name: "Sehwan.HEO"
+    url: "https://signet.sk.com/"
+    email: "admin@sk.com"
+  license: 
+    name: "Apache License Version 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0"
+
