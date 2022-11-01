@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +37,7 @@ public class UserLoginController {
 	@Autowired
 	private UserLoginService userLoginService;
 	
-	private static final String HEADER_AUTH = "Authorization";
+	private static final String HEADER_AUTH = HttpHeaders.AUTHORIZATION;
 
 	@PostMapping(value = "/login")
 	public ResponseEntity<Map<String, Object>> loginCheck(@RequestBody Map<String, Object> data,

@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -25,10 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtService {
 
 	@Value("${jwt.secret}")
-	private String SECRET;
+    private String SECRET;  // "sksignet_onm_service"
 	
 	@Value("${jwt.expiredTime}")
-	private Long expiredTime;	// millisecond
+    private Long expiredTime;  // 3600000 millisecond 
 
 	 
 	public <T> String create(String key, T data, String subject){
@@ -38,7 +39,7 @@ public class JwtService {
 						 .setSubject(subject)
 						 .claim(key, data)
 						 .setExpiration(new Date(System.currentTimeMillis()+ 1 * expiredTime)) //30분
-						 .signWith(SignatureAlgorithm.HS256, this.generateKey())
+						 .signWith(SignatureAlgorithm.HS256, SECRET)
 						 .compact();
 		return jwt;
 	}
@@ -61,11 +62,12 @@ public class JwtService {
 	
 	public String refreshToken(String jwt) {
 		try{
-			Claims claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt).getBody();
+//		    Claims claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt).getBody();
+		    Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(jwt).getBody();
 			
 			log.debug("ID: " + claims.getId());
 			log.debug("Subject: " + claims.getSubject());
-			log.debug("memberinfo: " + claims.get("memberInfo").toString());
+			log.debug("memberinfo: " + claims.get("data").toString());
 			log.debug("Expiration: " + claims.getExpiration());
 			
 			String tokenKey = claims.get("key").toString();
@@ -96,7 +98,8 @@ public class JwtService {
 
 	public boolean isUsable(String jwt) {
 		try{
-			Jws<Claims> claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt);
+//		    Jws<Claims> claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt);
+		    Jws<Claims> claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(jwt);
 			return true;
 			
 		}catch (Exception e) {
@@ -117,8 +120,8 @@ public class JwtService {
 	
 	public Map<String, Object> get(String key) {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-		String jwt = request.getHeader("Authorization");
-		
+		String jwt = request.getHeader(HttpHeaders.AUTHORIZATION);
+				
 		Jws<Claims> claims = null;
 		try {
 			claims = Jwts.parser().setSigningKey(SECRET.getBytes("UTF-8")).parseClaimsJws(jwt);
@@ -159,7 +162,8 @@ public class JwtService {
 	
 	public boolean getExpToken(String jwt) {
 		try {
-			Jws<Claims> claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt);
+//		    Jws<Claims> claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt);
+		    Jws<Claims> claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(jwt);
 			Date exp=claims.getBody().getExpiration();
 			Date now = new Date();
 		
