@@ -37,8 +37,6 @@ public class UserLoginController {
 	@Autowired
 	private UserLoginService userLoginService;
 	
-	private static final String HEADER_AUTH = HttpHeaders.AUTHORIZATION;
-
 	@PostMapping(value = "/login")
 	public ResponseEntity<Map<String, Object>> loginCheck(@RequestBody Map<String, Object> data,
 			  HttpServletRequest request,
@@ -61,8 +59,8 @@ public class UserLoginController {
 				
 				// JWT 토큰 생성 
 				String token = jwtService.create("data", loginMap, "user");
-				response.setHeader("Access-Control-Expose-Headers", "Authorization");
-				response.setHeader("Authorization", token);
+				response.setHeader("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
+				response.setHeader(HttpHeaders.AUTHORIZATION, token);
 				rcvData.put("data","success");
 			} else {
 				rcvData.put("data","fail");
@@ -83,7 +81,7 @@ public class UserLoginController {
 		Map<String, Object> rcvData=new HashMap<>();
 		
 		try {
-			String token = request.getHeader(HEADER_AUTH);
+			String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 			
 			if(Pattern.matches("^Bearer .*", token)) {
 				token = token.replaceAll("^Bearer( )*", "");
@@ -92,10 +90,12 @@ public class UserLoginController {
 			if(token != null && jwtService.isUsable(token) && jwtService.getExpToken(token)){
 				
 				String newToken=jwtService.refreshToken(token);
-				response.setHeader("Access-Control-Expose-Headers", HEADER_AUTH);
-				response.setHeader(HEADER_AUTH,newToken); //요청 웹브라우즈에 새로 생성한 token 되돌려줌.
+				response.setHeader("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
+				response.setHeader(HttpHeaders.AUTHORIZATION ,newToken); //요청 웹브라우즈에 새로 생성한 token 되돌려줌.
+				rcvData.put("data","success");
 			}else{
-				throw new UnauthorizedException();
+				rcvData.put("data","Unauthorized");
+//				throw new UnauthorizedException();
 			}
 			
 		} catch (Exception e) {

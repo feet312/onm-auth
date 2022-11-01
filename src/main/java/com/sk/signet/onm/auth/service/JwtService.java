@@ -70,12 +70,10 @@ public class JwtService {
 			log.debug("memberinfo: " + claims.get("data").toString());
 			log.debug("Expiration: " + claims.getExpiration());
 			
-			String tokenKey = claims.get("key").toString();
 			String subject = claims.getSubject();
 			Map<String,Object> data=(Map<String,Object>)claims.get(subject);
 	
 			String token=this.create("data", data, subject);
-//			String token=this.create(tokenKey, data, subject);
 			
 			claims.clear(); //기존 생성 토큰 제거(무조건 신규 생성 함) 
 			return token;
@@ -87,18 +85,13 @@ public class JwtService {
 			}else{
 				log.error(e.getMessage());
 			}
-			throw new UnauthorizedException();
-
-			/*개발환경!!!
-			 * return false;*/
-			 
+			throw new UnauthorizedException();			 
 		}
 	}
 	
 
 	public boolean isUsable(String jwt) {
 		try{
-//		    Jws<Claims> claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt);
 		    Jws<Claims> claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(jwt);
 			return true;
 			
@@ -109,11 +102,7 @@ public class JwtService {
 			}else{
 				log.error(e.getMessage());
 			}
-			throw new UnauthorizedException();
-
-			/*개발환경!!!
-			 * return false;*/
-			 
+			throw new UnauthorizedException();			 
 		}
 	}
 		
@@ -162,7 +151,6 @@ public class JwtService {
 	
 	public boolean getExpToken(String jwt) {
 		try {
-//		    Jws<Claims> claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt);
 		    Jws<Claims> claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(jwt);
 			Date exp=claims.getBody().getExpiration();
 			Date now = new Date();
