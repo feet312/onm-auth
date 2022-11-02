@@ -89,7 +89,7 @@ public class UserLoginController {
 						
 			if(token != null && jwtService.isUsable(token) && jwtService.getExpToken(token)){
 				
-				String newToken=jwtService.refreshToken(token);
+				String newToken = jwtService.refreshToken(token);
 				response.setHeader("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
 				response.setHeader(HttpHeaders.AUTHORIZATION ,newToken); //요청 웹브라우즈에 새로 생성한 token 되돌려줌.
 				rcvData.put("data","success");

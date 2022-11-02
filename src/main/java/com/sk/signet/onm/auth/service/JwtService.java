@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -60,21 +61,21 @@ public class JwtService {
 		return key;
 	}
 	
+	
 	public String refreshToken(String jwt) {
 		try{
 //		    Claims claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt).getBody();
 		    Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(jwt).getBody();
 			
-			log.debug("ID: " + claims.getId());
-			log.debug("Subject: " + claims.getSubject());
-			log.debug("memberinfo: " + claims.get("data").toString());
-			log.debug("Expiration: " + claims.getExpiration());
+			log.info("ID: " + claims.getId());
+			log.info("Subject: " + claims.getSubject());
+			log.info("memberinfo: " + claims.get("data").toString());
+			log.info("Expiration: " + claims.getExpiration());
 			
 			String subject = claims.getSubject();
-			Map<String,Object> data=(Map<String,Object>)claims.get(subject);
+			Map<String,Object> data=(Map<String,Object>)claims.get("data");
 	
-			String token=this.create("data", data, subject);
-			
+			String token = this.create("data", data, subject);			
 			claims.clear(); //기존 생성 토큰 제거(무조건 신규 생성 함) 
 			return token;
 			
