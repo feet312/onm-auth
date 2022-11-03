@@ -57,8 +57,9 @@ public class CustomerLoginController {
 			 */
 			Map<String, Object> loginMap = customerLoginService.login(data);
 			if(loginMap != null) {
+				// TODO: 나중에 로그인 이력저장 주석을 제거하자!
 				// 로그인 이력저장
-				customerLoginService.insertLoginHist(loginMap);
+//				customerLoginService.insertLoginHist(loginMap);
 				
 				// JWT 토큰 생성 
 				String token = jwtService.create("data", loginMap, "customer");

@@ -54,8 +54,9 @@ public class UserLoginController {
 			 */
 			Map<String, Object> loginMap = userLoginService.login(data);
 			if(loginMap != null) {
+				// TODO: 나중에 로그인 이력저장 주석을 제거하자!
 				// 로그인 이력저장
-				userLoginService.insertLoginHist(loginMap);
+//				userLoginService.insertLoginHist(loginMap);
 				
 				// JWT 토큰 생성 
 				String token = jwtService.create("data", loginMap, "user");
@@ -80,22 +81,30 @@ public class UserLoginController {
 		
 		Map<String, Object> rcvData=new HashMap<>();
 		
+		log.info("onm-auth userAuthCheck reqData : {}", data);
+		
 		try {
 			String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 			
-			if(Pattern.matches("^Bearer .*", token)) {
-				token = token.replaceAll("^Bearer( )*", "");
-			}
-						
-			if(token != null && jwtService.isUsable(token) && jwtService.getExpToken(token)){
+			if(null != token) {
+				log.info("get token: {}", token);
+				if(Pattern.matches("^Bearer .*", token)) {
+					token = token.replaceAll("^Bearer( )*", "");
+					log.info("token replace: {}", token);
+				}
 				
-				String newToken = jwtService.refreshToken(token);
-				response.setHeader("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
-				response.setHeader(HttpHeaders.AUTHORIZATION ,newToken); //요청 웹브라우즈에 새로 생성한 token 되돌려줌.
-				rcvData.put("data","success");
-			}else{
-				rcvData.put("data","Unauthorized");
-//				throw new UnauthorizedException();
+				if(jwtService.isUsable(token) && jwtService.getExpToken(token)){
+					
+					String newToken = jwtService.refreshToken(token);
+					response.setHeader("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
+					response.setHeader(HttpHeaders.AUTHORIZATION ,newToken); //요청 웹브라우즈에 새로 생성한 token 되돌려줌.
+					rcvData.put("data","success");
+				}else{
+					rcvData.put("data","Unauthorized");
+//					throw new UnauthorizedException();
+				}
+			} else {
+				rcvData.put("data","fail");
 			}
 			
 		} catch (Exception e) {

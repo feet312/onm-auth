@@ -67,7 +67,6 @@ public class JwtService {
 //		    Claims claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(jwt).getBody();
 		    Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(jwt).getBody();
 			
-			log.info("ID: " + claims.getId());
 			log.info("Subject: " + claims.getSubject());
 			log.info("memberinfo: " + claims.get("data").toString());
 			log.info("Expiration: " + claims.getExpiration());
