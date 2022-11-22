@@ -62,9 +62,11 @@ public class UserLoginController {
 				String token = jwtService.create("data", loginMap, "user");
 				response.setHeader("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION);
 				response.setHeader(HttpHeaders.AUTHORIZATION, token);
-				rcvData.put("token", token);
+//				rcvData.put("token", token);
 				rcvData.put("userId", loginMap.get("userId"));
-				rcvData.put("data", "success");
+				rcvData.put("data", token);
+				rcvData.put("code", "1000");
+				rcvData.put("status", response.getStatus());
 			} else {
 				rcvData.put("data","fail");
 			}
